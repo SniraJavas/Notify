@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "_internal": {
+      "isDebug": false,
+      "projectRoot": "C:\\Users\\snira\\Documents\\Notify",
+      "dynamicConfigPath": null,
+      "staticConfigPath": null,
+      "packageJsonPath": "C:\\Users\\snira\\Documents\\Notify\\package.json"
+    },
+    "name": "Notify",
+    "slug": "notify",
+    "version": "1.0.0",
+    "sdkVersion": "40.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "android": {
+      "package": "com.snira.notify"
+    }
+  }
+}
