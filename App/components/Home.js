@@ -16,27 +16,29 @@ import MapView, {
   PROVIDER_GOOGLE
 } from "react-native-maps";
 import haversine from "haversine";
+import GetLocation from 'react-native-get-location'
 import Messenger from '../components/Messager';
 // const LATITUDE = 29.95539;
 // const LONGITUDE = 78.07513;
 const LATITUDE_DELTA = 0.009;
 const LONGITUDE_DELTA = 0.009;
-const LATITUDE = 37.4220076;
-const LONGITUDE = -122.0839863;
+
 
 class Home extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      latitude: LATITUDE,
-      longitude: LONGITUDE,
+      location : {},
+      loading: false,
+      latitude: '',
+      longitude: '',
       routeCoordinates: [],
       distanceTravelled: 0,
       prevLatLng: {},
       coordinate: new AnimatedRegion({
-        latitude: LATITUDE,
-        longitude: LONGITUDE,
+        latitude: 0,
+        longitude: 0,
         latitudeDelta: 0,
         longitudeDelta: 0,
         location: null
@@ -49,36 +51,37 @@ class Home extends React.Component {
     };
   }
 
- Messenger=(cellNumber,whatsAppMessage)=>{
+  _requestLocation = () => {
+    this.setState({ loading: true, location: null });
+    navigator.geolocation.getCurrentPosition(
+      (position) => this.setState({location:position}),
+      (err) => console.log(err),
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 10000 }
+    );
+        
+}
 
+ Messenger=(cellNumber,whatsAppMessage)=>{
+    this._requestLocation();
     console.log("inside");
-      if (cellNumber.length != 10) {
-        Alert.alert('Please Enter Correct WhatsApp Number');
-        return;
-      }
-      // Here we are using 91 which is India Country Code.
+      // if (cellNumber.length < 9) {
+      //   console.log('Please Enter Correct WhatsApp Number : ', cellNumber);
+      //   return;
+      // }
       // You can change country code.
       let URL = 'whatsapp://send?text=' +  whatsAppMessage + '&phone=27' + cellNumber;
   
-      Linking.openURL(URL)
-        .then((data) => {
-          console.log('WhatsApp Opened');
-        })
-        .catch(() => {
-          Alert.alert('Make sure Whatsapp installed on your device');
-        });
+      // Linking.openURL(URL)
+      //   .then((data) => {
+      //     console.log('WhatsApp Opened');
+      //   })
+      //   .catch(() => {
+      //     console.log('Make sure Whatsapp installed on your device');
+      //   });
+
+        this._requestLocation
   
   }
-  findCoordinates = () => {
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        const location = JSON.stringify(position);
-        this.setState({ location });
-      },
-      error => Alert.alert(error.message),
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-    );
-  };
 
   componentDidMount() {
     navigator.geolocation.getCurrentPosition((position) => {
@@ -107,6 +110,7 @@ class Home extends React.Component {
         };
 
         if (Platform.OS === "android") {
+          console.log('before if')
           if (this.marker) {
             this.marker._component.animateMarkerToCoordinate(
               newCoordinate,
@@ -114,7 +118,8 @@ class Home extends React.Component {
             );
           }
         } else {
-          coordinate.timing(newCoordinate).start();
+          coordinate.timing(newCoordinate).star
+          t();
         }
 
         this.setState({
@@ -138,6 +143,7 @@ class Home extends React.Component {
 
   componentWillUnmount() {
     navigator.geolocation.clearWatch(this.watchID);
+    this._requestLocation();
   }
 
   getMapRegion = () => ({
