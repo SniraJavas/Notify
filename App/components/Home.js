@@ -9,6 +9,7 @@ import {
   PermissionsAndroid,
   Button
 } from "react-native";
+import * as SMS from 'expo-sms';
 import MapView, {
   Marker,
   AnimatedRegion,
@@ -17,7 +18,8 @@ import MapView, {
 } from "react-native-maps";
 import haversine from "haversine";
 import GetLocation from 'react-native-get-location'
-import Messenger from '../components/Messager';
+import Messenger from './WhatsAppMessenger';
+import WhatsAppMessenger from "./WhatsAppMessenger";
 // const LATITUDE = 29.95539;
 // const LONGITUDE = 78.07513;
 const LATITUDE_DELTA = 0.009;
@@ -35,6 +37,7 @@ class Home extends React.Component {
       longitude: '',
       routeCoordinates: [],
       distanceTravelled: 0,
+      alertClicked : false,
       prevLatLng: {},
       coordinate: new AnimatedRegion({
         latitude: 0,
@@ -49,6 +52,7 @@ class Home extends React.Component {
         longitudeDelta: 0,
       }
     };
+   // this.sendSms = this.sendSms.bind(this);
   }
 
   _requestLocation = () => {
@@ -61,26 +65,31 @@ class Home extends React.Component {
         
 }
 
- Messenger=(cellNumber,whatsAppMessage)=>{
-    this._requestLocation();
-    console.log("inside");
-      // if (cellNumber.length < 9) {
-      //   console.log('Please Enter Correct WhatsApp Number : ', cellNumber);
-      //   return;
-      // }
-      // You can change country code.
-      let URL = 'whatsapp://send?text=' +  whatsAppMessage + '&phone=27' + cellNumber;
-  
-      // Linking.openURL(URL)
-      //   .then((data) => {
-      //     console.log('WhatsApp Opened');
-      //   })
-      //   .catch(() => {
-      //     console.log('Make sure Whatsapp installed on your device');
-      //   });
+ async _sendSms(){
+      console.log("Alert");
+      const loc = _requestLocation;
+      const contacts = ['0671791758', '0730241920'] ;
+      const isAvailable = SMS.isAvailableAsync();
+      const msg = 'Hi I am in trouble, please help me. I am at '+ loc ;
+     
+      if (isAvailable) {
+            // do your SMS stuff here
+            console.log("sms is available");
+            var smsRes = await SMS.sendSMSAsync(
+              contacts,
+              msg
+            );
 
-        this._requestLocation
-  
+            if(smsRes.result.status == '200'){
+                //send via whatsapp
+                WhatsAppMessenger(contacts,msg);
+            }else{
+              //display could not inform your friends
+            }
+      } else {
+            // misfortune... there's no SMS available on this device
+            console.log("sms is not available");
+      }
   }
 
   componentDidMount() {
@@ -110,12 +119,12 @@ class Home extends React.Component {
         };
 
         if (Platform.OS === "android") {
-          console.log('before if')
+          
           if (this.marker) {
-            this.marker._component.animateMarkerToCoordinate(
-              newCoordinate,
-              500
-            );
+            // this.marker._component.animateMarkerToCoordinate(
+            //   newCoordinate,
+            //   500
+            // );
           }
         } else {
           coordinate.timing(newCoordinate).star
@@ -190,7 +199,7 @@ class Home extends React.Component {
             <Button color='red' 
             title="Alert" 
             textStyle={{ color: "#FFFFFF" }}
-            onPress ={()=> this.Messenger('671791758',"Hosh wena")}
+            onPress={() => this._sendSms()}
              />
           </View>
           <View style={styles.buttonContainerAlert}>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import * as Contacts from 'expo-contacts';
 import { SectionList, StyleSheet, View, Text, FlatList } from 'react-native'
 import Avatar from '../components/Avatar';
-import Messenger from '../components/Messager';
+import Messenger from '../components/WhatsAppMessenger';
 export default function ListItem() {
   const [contacts, setContacts] = useState([])
   useEffect(() => {
